@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config';
 import http from 'http';
 import { Server } from 'socket.io';
 import { connectDB } from './config/db.js';
@@ -12,8 +12,6 @@ import wishlistRouter from './Routes/wishlist.routes.js';
 import chatRouter from './Routes/chat.routes.js';
 import contactRouter from './Routes/contact.routes.js';
 import adminRouter from './Routes/admin.routes.js';
-
-
 
 const app = express();
 const PORT = process.env.PORT || 5001;
