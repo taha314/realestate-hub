@@ -131,7 +131,7 @@ chatRouter.delete("/:chatId/message/:messageId", async (req, res) => {
         }
         chat.messages.pull(message._id);
         await chat.save();
-        res.json({ message: "Message deleted successfully" });
+        res.json({ message: "Message deleted successfully", messages: chat.messages });
     }
     catch (err) {
         res.status(500).json({ message: "Server Error", error: err.message });

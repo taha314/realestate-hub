@@ -75,7 +75,7 @@ const ChatMessages = () => {
         }
     }, [activeChat]);
 
-    // update the chat when new messages is recieved
+    // update the chat when new messages is received or deleted
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (data) => {
@@ -83,8 +83,16 @@ const ChatMessages = () => {
                     setMessages((prev) => [...prev, data]);
                 }
             });
+            socket.on("deleteMessage", (data) => {
+                if (activeChat && data.chatId === activeChat._id) {
+                    setMessages((prev) => prev.filter((msg) => msg._id !== data.messageId));
+                }
+            });
         }
-        return () => socket?.off("receiveMessage");
+        return () => {
+            socket?.off("receiveMessage");
+            socket?.off("deleteMessage");
+        };
     }, [socket, activeChat]);
 
     useEffect(() => {
@@ -156,7 +164,12 @@ const ChatMessages = () => {
                     Authorization: `Bearer ${token}`
                 }
             });
-            setMessages(res.data.chat.messages);
+            // Update local state immediately - remove the deleted message
+            setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
+            // Emit deletion event to notify other users in the chat
+            if (socket) {
+                socket.emit("deleteMessage", { chatId: activeChat._id, messageId });
+            }
         } catch (err) {
             console.error("Failed to delete message. Please try again.", err);
         }
